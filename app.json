@@ -1,0 +1,56 @@
+{
+  "expo": {
+    "name": "Padion",
+    "slug": "padion",
+    "version": "1.0.0",
+    "scheme": "padion",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D0D1A"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.padion.app",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Für dein Profilbild",
+        "NSPhotoLibraryUsageDescription": "Für dein Profilbild",
+        "NSUserNotificationsUsageDescription": "Live-Score Benachrichtigungen"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-apple-authentication",
+      "expo-secure-store",
+      "expo-image",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#E94560"
+        }
+      ]
+    ],
+    "updates": {
+      "url": "https://u.expo.dev/",
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "supabaseUrl": "https://rotfwrwttdzvyavfsnqe.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvdGZ3cnd0dGR6dnlhdmZzbnFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NTMwMDcsImV4cCI6MjA4OTQyOTAwN30.3FjsuKJFn8JB6DNKvml6Cv9RLM2flCYBJUqFfJYOfXs",
+      "eas": {
+        "projectId": ""
+      }
+    }
+  }
+}

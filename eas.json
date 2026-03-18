@@ -1,0 +1,34 @@
+{
+  "cli": {
+    "version": ">= 5.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "platforms": ["ios"]
+    },
+    "preview": {
+      "distribution": "internal",
+      "platforms": ["ios"],
+      "ios": {
+        "simulator": false
+      }
+    },
+    "production": {
+      "platforms": ["ios"],
+      "ios": {
+        "buildConfiguration": "Release"
+      },
+      "channel": "production"
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "",
+        "ascAppId": ""
+      }
+    }
+  }
+}
