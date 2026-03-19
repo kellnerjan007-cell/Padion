@@ -19,7 +19,8 @@
       "infoPlist": {
         "NSCameraUsageDescription": "Für dein Profilbild",
         "NSPhotoLibraryUsageDescription": "Für dein Profilbild",
-        "NSUserNotificationsUsageDescription": "Live-Score Benachrichtigungen"
+        "NSUserNotificationsUsageDescription": "Live-Score Benachrichtigungen",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "plugins": [
@@ -49,8 +50,10 @@
       "supabaseUrl": "https://rotfwrwttdzvyavfsnqe.supabase.co",
       "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvdGZ3cnd0dGR6dnlhdmZzbnFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NTMwMDcsImV4cCI6MjA4OTQyOTAwN30.3FjsuKJFn8JB6DNKvml6Cv9RLM2flCYBJUqFfJYOfXs",
       "eas": {
-        "projectId": ""
-      }
-    }
+        "projectId": "e51fe07c-5f03-47af-af54-04ee8c73e127"
+      },
+      "router": {}
+    },
+    "owner": "jankellner14"
   }
 }

@@ -6,29 +6,26 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "platforms": ["ios"]
+      "ios": {
+        "simulator": false
+      }
     },
     "preview": {
       "distribution": "internal",
-      "platforms": ["ios"],
       "ios": {
         "simulator": false
       }
     },
     "production": {
-      "platforms": ["ios"],
+      "channel": "production",
       "ios": {
         "buildConfiguration": "Release"
-      },
-      "channel": "production"
+      }
     }
   },
   "submit": {
     "production": {
-      "ios": {
-        "appleId": "",
-        "ascAppId": ""
-      }
+      "ios": {}
     }
   }
 }
