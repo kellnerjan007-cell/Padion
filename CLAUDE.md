@@ -44,6 +44,20 @@ Components (components/) → pure UI, props only
 - All screens must have: loading / error / empty / data states
 - One Zustand store per domain, use selectors
 
+## Build & Deploy (CI/CD)
+- **OTA Update** (JS changes): `git push` → GitHub Action → `eas update` → app updates on next open
+- **Native Build** (package.json/app.json/eas.json changes): `git push` → GitHub Action → `eas build --auto-submit` → TestFlight
+- **Manual build**: GitHub → Actions → "EAS Build iOS (Manual)" → Run workflow
+- **Local EAS CLI**: only works from `C:\Padion` (not from `C:\Users\Prêt\...` due to Windows path issue)
+- **Submit profile**: ascAppId = 6760897094, stored in eas.json
+
+## Known Issues & Fixes
+- `react-native-purchases` MUST NOT be in dependencies — crashes app on launch (TurboModule abort)
+- `babel-preset-expo` must be in devDependencies (not auto-hoisted in this project)
+- Babel plugins: only `react-native-worklets/plugin` — reanimated v4 plugin is just a wrapper, don't use both
+- `eas submit --latest` is unreliable in CI — use `eas build --auto-submit` instead
+- App crash diagnosis: iPhone → Settings → Privacy → Analytics → Analytics Data → newest Padion file
+
 ## Custom Commands
 | Command | Description |
 |---|---|
