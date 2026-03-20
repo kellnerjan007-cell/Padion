@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.jankellner.padion",
-      "buildNumber": "2",
+      "buildNumber": "4",
       "usesAppleSignIn": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Für dein Profilbild",
