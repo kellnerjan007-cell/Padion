@@ -68,4 +68,17 @@ export const matchService = {
     if (error) throw error;
     return transformMatch(data);
   },
+
+  subscribeLiveUpdates: (onUpdate: (raw: Record<string, unknown>) => void): (() => void) => {
+    const channel = supabase
+      .channel('live-matches')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'matches', filter: 'status=eq.live' },
+        (payload) => onUpdate(payload.new as Record<string, unknown>),
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  },
 };

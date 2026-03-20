@@ -11,13 +11,15 @@
       }
     },
     "preview": {
-      "distribution": "internal",
+      "distribution": "store",
+      "credentialsSource": "remote",
       "ios": {
-        "simulator": false
+        "buildConfiguration": "Release"
       }
     },
     "production": {
-      "channel": "production",
+      "distribution": "store",
+      "credentialsSource": "remote",
       "ios": {
         "buildConfiguration": "Release"
       }

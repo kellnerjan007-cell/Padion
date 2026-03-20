@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { matchService } from '@/services/match-service';
 import { tournamentService } from '@/services/tournament-service';
-import { supabase } from '@/services/supabase';
 import type { Match } from '@/types/match';
 import type { Tournament } from '@/types/tournament';
 import { transformMatch } from '@/utils/transforms';
@@ -80,23 +79,12 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
   updateLiveMatch: (raw) => {
     set((state) => ({
       liveMatches: state.liveMatches.map((m) =>
-        m.id === (raw.id as string) ? { ...m, ...transformMatch(raw) } : m
+        m.id === (raw.id as string) ? { ...m, ...transformMatch(raw) } : m,
       ),
     }));
   },
 
   subscribeToLiveUpdates: () => {
-    const channel = supabase
-      .channel('live-matches')
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'matches', filter: 'status=eq.live' },
-        (payload) => {
-          get().updateLiveMatch(payload.new as Record<string, unknown>);
-        }
-      )
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
+    return matchService.subscribeLiveUpdates((raw) => get().updateLiveMatch(raw));
   },
 }));

@@ -8,8 +8,7 @@ import { StatCard } from '@/components/stat-card';
 import { useShare } from '@/hooks/use-share';
 import { AchievementsGrid } from '@/components/achievement-badge';
 import { Toast } from '@/components/toast';
-import { supabase } from '@/services/supabase';
-import { transformAchievement } from '@/utils/transforms';
+import { profileService } from '@/services/profile-service';
 import type { Achievement } from '@/types/achievement';
 
 interface UserReward {
@@ -44,27 +43,8 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     if (!profile?.id) return;
-    supabase
-      .from('achievements')
-      .select('*')
-      .eq('user_id', profile.id)
-      .then(({ data }) => setAchievements((data ?? []).map(transformAchievement)));
-
-    supabase
-      .from('user_rewards')
-      .select('id, period_start, claimed, reward:rewards(prize_description)')
-      .eq('user_id', profile.id)
-      .order('period_start', { ascending: false })
-      .then(({ data }) =>
-        setRewards(
-          (data ?? []).map((r: Record<string, unknown>) => ({
-            id: r.id as string,
-            prizeDescription: (r.reward as Record<string, string>)?.prize_description ?? '',
-            periodStart: r.period_start as string,
-            claimed: r.claimed as boolean,
-          })),
-        ),
-      );
+    profileService.fetchAchievements(profile.id).then(setAchievements).catch(() => null);
+    profileService.fetchRewards(profile.id).then(setRewards).catch(() => null);
   }, [profile?.id]);
 
   const handleSignOut = () => {
