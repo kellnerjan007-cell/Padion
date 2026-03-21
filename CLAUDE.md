@@ -58,6 +58,12 @@ Components (components/) → pure UI, props only
 - `eas submit --latest` is unreliable in CI — use `eas build --auto-submit` instead
 - App crash diagnosis: iPhone → Settings → Privacy → Analytics → Analytics Data → newest Padion file
 
+## Skill Usage Rules (MANDATORY)
+- **Before implementing any new feature** → ALWAYS run `/brainstorm` first to clarify requirements
+- **When a bug/crash is complex or root cause is unclear** → ALWAYS run `/ultrathink` to diagnose
+- **When a feature touches 3+ files or multiple domains** → ALWAYS use `/parallel` or `/team`
+- **When creating a new screen/store/service/component** → use the matching `/new-*` skill
+
 ## Custom Commands
 | Command | Description |
 |---|---|
@@ -69,3 +75,8 @@ Components (components/) → pure UI, props only
 | `/review` | Audits current file against rules.md |
 | `/next-task` | Shows next open task from plan.md |
 | `/done-task` | Marks a task as complete in plan.md |
+| `/brainstorm` | Clarify requirements before coding |
+| `/ultrathink` | Deep analysis for complex bugs |
+| `/parallel` | Implement large features with parallel agents |
+| `/team` | Coordinate agents for end-to-end feature |
+| `/tdd` | Test-driven development for services/stores |
