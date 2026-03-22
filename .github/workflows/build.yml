@@ -71,4 +71,4 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build iOS + Submit to TestFlight
-        run: eas build --platform ios --profile preview --non-interactive --auto-submit
+        run: eas build --platform ios --profile preview --non-interactive --auto-submit --clear-cache
