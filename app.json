@@ -15,7 +15,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.jankellner.padion",
-      "buildNumber": "8",
+      "buildNumber": "9",
       "usesAppleSignIn": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Für dein Profilbild",
@@ -48,7 +48,6 @@
     "experiments": {
       "typedRoutes": true
     },
-    "newArchEnabled": false,
     "extra": {
       "supabaseUrl": "https://rotfwrwttdzvyavfsnqe.supabase.co",
       "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvdGZ3cnd0dGR6dnlhdmZzbnFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NTMwMDcsImV4cCI6MjA4OTQyOTAwN30.3FjsuKJFn8JB6DNKvml6Cv9RLM2flCYBJUqFfJYOfXs",
