@@ -15,8 +15,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.jankellner.padion",
-      "buildNumber": "11",
-      "buildReactNativeFromSource": true,
+      "buildNumber": "12",
       "usesAppleSignIn": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Für dein Profilbild",
@@ -47,7 +46,8 @@
       "policy": "appVersion"
     },
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "useHermesV1": true
     },
     "extra": {
       "supabaseUrl": "https://rotfwrwttdzvyavfsnqe.supabase.co",
