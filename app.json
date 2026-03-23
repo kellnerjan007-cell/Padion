@@ -31,9 +31,9 @@
     "updates": {
       "enabled": false
     },
+    "jsEngine": "jsc",
     "experiments": {
-      "typedRoutes": true,
-      "useHermesV1": true
+      "typedRoutes": true
     },
     "extra": {
       "supabaseUrl": "https://rotfwrwttdzvyavfsnqe.supabase.co",
