@@ -15,35 +15,21 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.jankellner.padion",
-      "buildNumber": "13",
+      "buildNumber": "14",
       "usesAppleSignIn": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Für dein Profilbild",
         "NSPhotoLibraryUsageDescription": "Für dein Profilbild",
-        "NSUserNotificationsUsageDescription": "Live-Score Benachrichtigungen",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "plugins": [
       "expo-router",
       "expo-apple-authentication",
-      "expo-secure-store",
-      "expo-image",
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/icon.png",
-          "color": "#E94560"
-        }
-      ]
+      "expo-image"
     ],
     "updates": {
-      "url": "https://u.expo.dev/e51fe07c-5f03-47af-af54-04ee8c73e127",
-      "fallbackToCacheTimeout": 0,
-      "checkAutomatically": "NEVER"
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
+      "enabled": false
     },
     "experiments": {
       "typedRoutes": true,
