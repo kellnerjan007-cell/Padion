@@ -26,12 +26,16 @@
     "plugins": [
       "expo-router",
       "expo-apple-authentication",
-      "expo-image"
+      "expo-image",
+      "expo-secure-store"
     ],
     "updates": {
-      "enabled": false
+      "url": "https://u.expo.dev/e51fe07c-5f03-47af-af54-04ee8c73e127",
+      "checkAutomatically": "NEVER"
     },
-    "jsEngine": "jsc",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
     "experiments": {
       "typedRoutes": true
     },
