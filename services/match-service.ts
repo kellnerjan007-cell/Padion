@@ -1,84 +1,105 @@
-import { supabase } from './supabase';
-import type { Match } from '@/types/match';
-import { transformMatch } from '@/utils/transforms';
+import { createClient } from "@/lib/supabase/client";
+import type { Match, Tournament } from "@/types";
 
-const MATCH_SELECT = `
-  *,
-  tournament:tournaments(*),
-  team1_p1:players!team1_player1(*),
-  team1_p2:players!team1_player2(*),
-  team2_p1:players!team2_player1(*),
-  team2_p2:players!team2_player2(*)
-`;
+const supabase = createClient();
 
-export const matchService = {
-  fetchLiveMatches: async (): Promise<Match[]> => {
-    const { data, error } = await supabase
-      .from('matches')
-      .select(MATCH_SELECT)
-      .eq('status', 'live')
-      .order('scheduled_at');
+function mapPlayer(row: Record<string, unknown>) {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    country: row.country as string,
+    ranking: row.ranking as number | null,
+    avatarUrl: row.avatar_url as string | null,
+  };
+}
 
-    if (error) throw error;
-    return (data ?? []).map(transformMatch);
-  },
+function mapMatch(row: Record<string, unknown>): Match {
+  return {
+    id: row.id as string,
+    tournamentId: row.tournament_id as string,
+    tournamentName: (row.tournaments as Record<string, unknown> | null)?.name as string | undefined,
+    team1Player1: mapPlayer(row.team1_player1_data as Record<string, unknown>),
+    team1Player2: mapPlayer(row.team1_player2_data as Record<string, unknown>),
+    team2Player1: mapPlayer(row.team2_player1_data as Record<string, unknown>),
+    team2Player2: mapPlayer(row.team2_player2_data as Record<string, unknown>),
+    score: row.score as Match["score"],
+    status: row.status as Match["status"],
+    round: row.round as string | null,
+    scheduledAt: row.scheduled_at as string | null,
+    completedAt: row.completed_at as string | null,
+  };
+}
 
-  fetchRecentResults: async (): Promise<Match[]> => {
-    const { data, error } = await supabase
-      .from('matches')
-      .select(MATCH_SELECT)
-      .eq('status', 'completed')
-      .order('completed_at', { ascending: false })
-      .limit(30);
+export async function fetchLiveMatches(): Promise<Match[]> {
+  const { data, error } = await supabase
+    .from("matches")
+    .select(`
+      *,
+      tournaments(name),
+      team1_player1_data:players!team1_player1(id, name, country, ranking, avatar_url),
+      team1_player2_data:players!team1_player2(id, name, country, ranking, avatar_url),
+      team2_player1_data:players!team2_player1(id, name, country, ranking, avatar_url),
+      team2_player2_data:players!team2_player2(id, name, country, ranking, avatar_url)
+    `)
+    .eq("status", "live")
+    .order("scheduled_at", { ascending: true });
 
-    if (error) throw error;
-    return (data ?? []).map(transformMatch);
-  },
+  if (error) throw error;
+  return (data ?? []).map(mapMatch);
+}
 
-  fetchUpcomingMatches: async (): Promise<Match[]> => {
-    const { data, error } = await supabase
-      .from('matches')
-      .select(MATCH_SELECT)
-      .eq('status', 'upcoming')
-      .order('scheduled_at')
-      .limit(30);
+export async function fetchRecentResults(): Promise<Match[]> {
+  const { data, error } = await supabase
+    .from("matches")
+    .select(`
+      *,
+      tournaments(name),
+      team1_player1_data:players!team1_player1(id, name, country, ranking, avatar_url),
+      team1_player2_data:players!team1_player2(id, name, country, ranking, avatar_url),
+      team2_player1_data:players!team2_player1(id, name, country, ranking, avatar_url),
+      team2_player2_data:players!team2_player2(id, name, country, ranking, avatar_url)
+    `)
+    .eq("status", "completed")
+    .order("completed_at", { ascending: false })
+    .limit(30);
 
-    if (error) throw error;
-    return (data ?? []).map(transformMatch);
-  },
+  if (error) throw error;
+  return (data ?? []).map(mapMatch);
+}
 
-  fetchMatchesByTournament: async (tournamentId: string): Promise<Match[]> => {
-    const { data, error } = await supabase
-      .from('matches')
-      .select(MATCH_SELECT)
-      .eq('tournament_id', tournamentId)
-      .order('scheduled_at');
+export async function fetchTournaments(): Promise<Tournament[]> {
+  const { data, error } = await supabase
+    .from("tournaments")
+    .select("*")
+    .order("start_date", { ascending: true });
 
-    if (error) throw error;
-    return (data ?? []).map(transformMatch);
-  },
+  if (error) throw error;
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    name: row.name as string,
+    location: row.location as string,
+    country: row.country as string | null,
+    startDate: row.start_date as string,
+    endDate: row.end_date as string,
+    category: row.category as Tournament["category"],
+    status: row.status as Tournament["status"],
+  }));
+}
 
-  fetchMatchById: async (id: string): Promise<Match> => {
-    const { data, error } = await supabase
-      .from('matches')
-      .select(MATCH_SELECT)
-      .eq('id', id)
-      .single();
+export async function fetchMatchById(id: string): Promise<Match | null> {
+  const { data, error } = await supabase
+    .from("matches")
+    .select(`
+      *,
+      tournaments(name),
+      team1_player1_data:players!team1_player1(id, name, country, ranking, avatar_url),
+      team1_player2_data:players!team1_player2(id, name, country, ranking, avatar_url),
+      team2_player1_data:players!team2_player1(id, name, country, ranking, avatar_url),
+      team2_player2_data:players!team2_player2(id, name, country, ranking, avatar_url)
+    `)
+    .eq("id", id)
+    .single();
 
-    if (error) throw error;
-    return transformMatch(data);
-  },
-
-  subscribeLiveUpdates: (onUpdate: (raw: Record<string, unknown>) => void): (() => void) => {
-    const channel = supabase
-      .channel('live-matches')
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'matches', filter: 'status=eq.live' },
-        (payload) => onUpdate(payload.new as Record<string, unknown>),
-      )
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  },
-};
+  if (error) return null;
+  return mapMatch(data);
+}

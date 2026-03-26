@@ -1,4 +1,4 @@
-name: CI/CD
+name: Deploy to Vercel
 
 on:
   push:
@@ -6,29 +6,8 @@ on:
       - main
 
 jobs:
-  detect:
-    name: Detect Change Type
-    runs-on: ubuntu-latest
-    outputs:
-      needs_build: ${{ steps.check.outputs.needs_build }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Check if native rebuild needed
-        id: check
-        run: |
-          if git diff --name-only HEAD~1 HEAD | grep -qE 'package\.json|package-lock\.json|app\.json|eas\.json'; then
-            echo "needs_build=true" >> $GITHUB_OUTPUT
-          else
-            echo "needs_build=false" >> $GITHUB_OUTPUT
-          fi
-
-  ota-update:
-    name: OTA Update
-    needs: detect
-    if: needs.detect.outputs.needs_build == 'false'
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,35 +19,8 @@ jobs:
 
       - run: npm ci
 
-      - uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Publish OTA Update
-        run: eas update --branch production --platform ios --message "${{ github.event.head_commit.message }}"
+      - name: Build
+        run: npm run build
         env:
-          CI: "1"
-
-  native-build:
-    name: Build + Submit to TestFlight
-    needs: detect
-    if: needs.detect.outputs.needs_build == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-
-      - uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Build iOS + Submit to TestFlight
-        run: eas build --platform ios --profile preview --non-interactive --auto-submit --clear-cache
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}

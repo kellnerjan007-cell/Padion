@@ -1,85 +1,94 @@
-import { supabase } from './supabase';
-import type { Prediction, CreatePredictionInput } from '@/types/prediction';
-import { transformPrediction } from '@/utils/transforms';
+import { createClient } from "@/lib/supabase/client";
+import type { Match, Prediction } from "@/types";
 
-export const predictionService = {
-  createPrediction: async (input: CreatePredictionInput): Promise<Prediction> => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Nicht eingeloggt');
+const supabase = createClient();
 
-    const { data, error } = await supabase
-      .from('predictions')
-      .insert({
-        user_id: user.id,
-        match_id: input.matchId,
-        predicted_winner_team: input.predictedWinnerTeam,
-        predicted_score: input.predictedScore ?? null,
-      })
-      .select()
-      .single();
+function mapPrediction(row: Record<string, unknown>): Prediction {
+  return {
+    id: row.id as string,
+    userId: row.user_id as string,
+    matchId: row.match_id as string,
+    predictedWinnerTeam: row.predicted_winner_team as 1 | 2,
+    predictedScore: row.predicted_score as string | null,
+    pointsEarned: row.points_earned as number,
+    status: row.status as Prediction["status"],
+    createdAt: row.created_at as string,
+  };
+}
 
-    if (error) throw error;
-    return transformPrediction(data);
-  },
+export async function fetchUpcomingMatches(): Promise<Match[]> {
+  const { data, error } = await supabase
+    .from("matches")
+    .select(`
+      *,
+      tournaments(name),
+      team1_player1_data:players!team1_player1(id, name, country, ranking, avatar_url),
+      team1_player2_data:players!team1_player2(id, name, country, ranking, avatar_url),
+      team2_player1_data:players!team2_player1(id, name, country, ranking, avatar_url),
+      team2_player2_data:players!team2_player2(id, name, country, ranking, avatar_url)
+    `)
+    .eq("status", "upcoming")
+    .order("scheduled_at", { ascending: true });
 
-  fetchMyPredictions: async (): Promise<Prediction[]> => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return [];
+  if (error) throw error;
+  return (data ?? []).map((row) => ({
+    id: row.id as string,
+    tournamentId: row.tournament_id as string,
+    tournamentName: (row.tournaments as Record<string, unknown> | null)?.name as string | undefined,
+    team1Player1: { id: (row.team1_player1_data as Record<string, unknown>).id as string, name: (row.team1_player1_data as Record<string, unknown>).name as string, country: (row.team1_player1_data as Record<string, unknown>).country as string, ranking: (row.team1_player1_data as Record<string, unknown>).ranking as number | null, avatarUrl: (row.team1_player1_data as Record<string, unknown>).avatar_url as string | null },
+    team1Player2: { id: (row.team1_player2_data as Record<string, unknown>).id as string, name: (row.team1_player2_data as Record<string, unknown>).name as string, country: (row.team1_player2_data as Record<string, unknown>).country as string, ranking: (row.team1_player2_data as Record<string, unknown>).ranking as number | null, avatarUrl: (row.team1_player2_data as Record<string, unknown>).avatar_url as string | null },
+    team2Player1: { id: (row.team2_player1_data as Record<string, unknown>).id as string, name: (row.team2_player1_data as Record<string, unknown>).name as string, country: (row.team2_player1_data as Record<string, unknown>).country as string, ranking: (row.team2_player1_data as Record<string, unknown>).ranking as number | null, avatarUrl: (row.team2_player1_data as Record<string, unknown>).avatar_url as string | null },
+    team2Player2: { id: (row.team2_player2_data as Record<string, unknown>).id as string, name: (row.team2_player2_data as Record<string, unknown>).name as string, country: (row.team2_player2_data as Record<string, unknown>).country as string, ranking: (row.team2_player2_data as Record<string, unknown>).ranking as number | null, avatarUrl: (row.team2_player2_data as Record<string, unknown>).avatar_url as string | null },
+    score: row.score as Match["score"],
+    status: row.status as Match["status"],
+    round: row.round as string | null,
+    scheduledAt: row.scheduled_at as string | null,
+    completedAt: row.completed_at as string | null,
+  }));
+}
 
-    const { data, error } = await supabase
-      .from('predictions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+export async function fetchMyPredictions(userId: string): Promise<Prediction[]> {
+  const { data, error } = await supabase
+    .from("predictions")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
 
-    if (error) throw error;
-    return (data ?? []).map(transformPrediction);
-  },
+  if (error) throw error;
+  return (data ?? []).map(mapPrediction);
+}
 
-  fetchPredictionForMatch: async (matchId: string): Promise<Prediction | null> => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+export async function createPrediction(
+  userId: string,
+  matchId: string,
+  predictedWinnerTeam: 1 | 2,
+  predictedScore?: string
+): Promise<Prediction> {
+  const { data, error } = await supabase
+    .from("predictions")
+    .insert({
+      user_id: userId,
+      match_id: matchId,
+      predicted_winner_team: predictedWinnerTeam,
+      predicted_score: predictedScore ?? null,
+    })
+    .select()
+    .single();
 
-    const { data, error } = await supabase
-      .from('predictions')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('match_id', matchId)
-      .maybeSingle();
+  if (error) throw error;
+  return mapPrediction(data);
+}
 
-    if (error) throw error;
-    return data ? transformPrediction(data) : null;
-  },
+export async function getDailyPredictionCount(userId: string): Promise<number> {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  getDailyCount: async (): Promise<number> => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return 0;
+  const { count, error } = await supabase
+    .from("predictions")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .gte("created_at", today.toISOString());
 
-    const today = new Date().toISOString().split('T')[0];
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('daily_predictions_count, daily_predictions_reset_at')
-      .eq('id', user.id)
-      .single();
-
-    if (error) return 0;
-
-    // Reset if new day
-    if (data.daily_predictions_reset_at !== today) {
-      await supabase
-        .from('profiles')
-        .update({ daily_predictions_count: 0, daily_predictions_reset_at: today })
-        .eq('id', user.id);
-      return 0;
-    }
-
-    return data.daily_predictions_count ?? 0;
-  },
-
-  incrementDailyCount: async (): Promise<void> => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    await supabase.rpc('increment_daily_predictions', { p_user_id: user.id });
-  },
-};
+  if (error) throw error;
+  return count ?? 0;
+}
